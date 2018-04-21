@@ -18,7 +18,7 @@ use App\Action;
 */
 Route::get('user-info/{id}', function(Request $request, $id) {
     $records=Game::where('customer_id', $id)->first();
-    if(!records){
+    if(!$records){
         return response()->json([
             'status'=> 403,
             'message'=> 'Get user informationin error',
