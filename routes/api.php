@@ -64,6 +64,7 @@ Route::post('update-star', function(Request $request) {
     $customer_id = $request->input('customer_id');
     $action = $request->input('action');
     $customer = Game::where('customer_id', $customer_id)->first();
+
     if(!$customer){
         return response()->json([
             'status'=> 403,
@@ -71,8 +72,22 @@ Route::post('update-star', function(Request $request) {
             'data'=>$records
         ]);
     }
+
+    if($action === "lucky_wheel"){
+        $value = $request->input('value');
+        $records = Game::where('customer_id', $customer_id)->first();
+        $records->star += $value;
+        $records->save();
+        return response()->json([
+            'status'=> 403,
+            'message'=> 'Update star successfully',
+            'data'=>$records
+        ]);
+    }
+    $action_type =  $action."_count";
     $action_value = Action::where('name', $action)->value('value');
     $customer->star += $action_value;
+    $customer[$action_type] += 1;
     $customer->save();
     return response()->json([
         'status'=> 200,
