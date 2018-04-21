@@ -71,15 +71,13 @@ Route::post('update-star', function(Request $request) {
             'data'=>$records
         ]);
     }
-    $action_value = Action::where('name', $action)->get('value');
-    $records = Action::where('name', $action)->first();
-
-    $customer->exp += $action_value;
+    $action_value = Action::where('name', $action)->value('value');
+    $customer->star += $action_value;
     $customer->save();
     return response()->json([
         'status'=> 200,
         'message'=> 'Update star successfully',
-        'data'=>$records
+        'data'=>$customer
     ]);
 });
 
