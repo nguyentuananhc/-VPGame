@@ -60,6 +60,18 @@ Route::get('list-actions', function(Request $request) {
     ]);
 });
 
+Route::get('leaderboard', function(Request $request) {
+    $results = Game::orderBy('exp', 'DESC')
+                ->orderBy('star', 'DESC')
+                ->get();
+    return response()->json([
+        'status'=> 200,
+        'message'=> 'Get leaderboard successfully',
+        'data'=>$results
+    ]);
+});
+
+
 Route::post('update-star', function(Request $request) {
     $customer_id = $request->input('customer_id');
     $action = $request->input('action');
@@ -93,6 +105,26 @@ Route::post('update-star', function(Request $request) {
         'status'=> 200,
         'message'=> 'Update star successfully',
         'data'=>$customer
+    ]);
+});
+
+Route::post('update-exp', function(Request $request) {
+    $customer_id = $request->input('customer_id');
+    $value = $request->input('value');
+    $records = Game::where('customer_id', $customer_id)->first();
+    if(!$records){
+        return response()->json([
+            'status'=> 403,
+            'message'=> 'Get user informationin error',
+            'data'=>$records
+        ]);
+    }
+    $records->exp += $value;
+    $records->save();
+    return response()->json([
+        'status'=> 200,
+        'message'=> 'Update star successfully',
+        'data'=>$records
     ]);
 });
 
