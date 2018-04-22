@@ -18,6 +18,20 @@ use App\Action;
 */
 Route::get('user-info/{id}', function(Request $request, $id) {
     $records=Game::where('customer_id', $id)->first();
+    $level = 1;
+    $exp = $records->exp;
+    if ($exp >=0 && $exp <=99) {
+        $level=2;
+    } elseif ($exp >=100 && $exp <=199) {
+        $level=3;
+    } elseif ($exp >=200 && $exp <=299) {
+        $level=4;
+    }elseif ($exp >=300 && $exp <=399) {
+        $level=5;
+    }else {
+        $level=6;
+    }
+    $records->level = $level;
     if(!$records){
         return response()->json([
             'status'=> 403,
@@ -121,6 +135,12 @@ Route::post('update-exp', function(Request $request) {
             'status'=> 403,
             'message'=> 'Get user informationin error',
             'data'=>$records
+        ]);
+    }
+    if($records->star - $item->value <= 0) {
+        return response()->json([
+            'status'=> 400,
+            'message'=> 'You dont have enough star to buy this item',
         ]);
     }
     if ($records->exp === -1){
