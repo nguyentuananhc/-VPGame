@@ -110,27 +110,11 @@ Route::post('update-star', function(Request $request) {
 
 Route::post('update-exp', function(Request $request) {
     $customer_id = $request->input('customer_id');
-    $value = $request->input('value');
-    $records = Game::where('customer_id', $customer_id)->first();
-    if(!$records){
-        return response()->json([
-            'status'=> 403,
-            'message'=> 'Get user informationin error',
-            'data'=>$records
-        ]);
-    }
-    $records->exp += $value;
-    $records->save();
-    return response()->json([
-        'status'=> 200,
-        'message'=> 'Update star successfully',
-        'data'=>$records
-    ]);
-});
+    $item_id = $request->input('id');
 
-Route::post('update-exp', function(Request $request) {
-    $customer_id = $request->input('customer_id');
-    $value = $request->input('value');
+    $item = Item::where('id', $item_id)->first();
+    $random_value = rand($item->min ,$item->max);
+
     $records = Game::where('customer_id', $customer_id)->first();
     if(!$records){
         return response()->json([
@@ -139,7 +123,11 @@ Route::post('update-exp', function(Request $request) {
             'data'=>$records
         ]);
     }
-    $records->exp += $value;
+    if ($records->exp === -1){
+        $records->exp += $value + 1;
+    }
+    $records->exp += $random_value;
+    $records->star -= $item->value;
     $records->save();
     return response()->json([
         'status'=> 200,
