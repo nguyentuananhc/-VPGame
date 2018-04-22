@@ -16,11 +16,42 @@ use App\Action;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::get('list-users', function(Request $request) {
+    $results = Game::orderBy('exp')->get();
+    $data = [];
+    $level = 1;
+    foreach ($results as $user) {
+        $exp = $user->exp;
+        if ($exp >=1 && $exp <=99) {
+            $level=2;
+        } elseif ($exp >=100 && $exp <=199) {
+            $level=3;
+        } elseif ($exp >=200 && $exp <=299) {
+            $level=4;
+        }elseif ($exp >=300 && $exp <=399) {
+            $level=5;
+        }else {
+            $level=6;
+        }
+        $obj = new stdClass();
+        $obj->name = $user->fullname;
+        $obj->lvl = $level;
+        $obj->star = $user->star;;
+
+        array_push($data, $obj);
+    }
+    return response()->json([
+        'status'=> 200,
+        'message'=> 'Get list user successfully',
+        'data'=>$data
+    ]);
+});
+
 Route::get('user-info/{id}', function(Request $request, $id) {
     $records=Game::where('customer_id', $id)->first();
     $level = 1;
     $exp = $records->exp;
-    if ($exp >=0 && $exp <=99) {
+    if ($exp >=1 && $exp <=99) {
         $level=2;
     } elseif ($exp >=100 && $exp <=199) {
         $level=3;
@@ -77,11 +108,34 @@ Route::get('list-actions', function(Request $request) {
 Route::get('leaderboard', function(Request $request) {
     $results = Game::orderBy('exp', 'DESC')
                 ->orderBy('star', 'DESC')
+                ->take(5)
                 ->get();
+    $data = [];
+    $level = 1;
+    foreach ($results as $user) {
+        $exp = $user->exp;
+        if ($exp >=1 && $exp <=99) {
+            $level=2;
+        } elseif ($exp >=100 && $exp <=199) {
+            $level=3;
+        } elseif ($exp >=200 && $exp <=299) {
+            $level=4;
+        }elseif ($exp >=300 && $exp <=399) {
+            $level=5;
+        }else {
+            $level=6;
+        }
+        $obj = new stdClass();
+        $obj->name = $user->fullname;
+        $obj->lvl = $level;
+        $obj->star = $user->star;;
+
+        array_push($data, $obj);
+    }
     return response()->json([
         'status'=> 200,
         'message'=> 'Get leaderboard successfully',
-        'data'=>$results
+        'data'=>$data
     ]);
 });
 
@@ -142,9 +196,6 @@ Route::post('update-exp', function(Request $request) {
             'status'=> 400,
             'message'=> 'You dont have enough star to buy this item',
         ]);
-    }
-    if ($records->exp === -1){
-        $records->exp += $value + 1;
     }
     $records->exp += $random_value;
     $records->star -= $item->value;
